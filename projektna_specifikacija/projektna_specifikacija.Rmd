@@ -1,0 +1,98 @@
+---
+title: 'Projektna specifikacija: Usporedba programskih alata za procjenu ionosferskog kašnjenja GNSS signala'
+output: html_document
+---
+
+## Osnovne informacije o projektu
+
+- **Naziv projekta:** Usporedba programskih alata za procjenu ionosferskog kašnjenja GNSS signala
+- **Studenti:** Antonio Cvitković, Luka Ivanić, Lorena Pekić, Rea Prpić
+- **Kodno ime tima:** Tim 8
+- **Profesor:** naslovni prof. dr. sc. Renato Filjar
+- **Ustanova:** Tehnički fakultet u Rijeci
+- **Početak projekta:** 23. svibnja 2025.
+- **Završetak projekta:** 13. lipnja 2025.
+
+Projekt se provodi u sklopu nastave kolegija Programski određen radio s glavnim ciljem dubljeg upoznavanja s programskim okruženjem za statističko računarstvo R, novim programskim alatima (tec-suite i GPS TEC), odgovarajućim knjižnicama te samog procesa planiranja i provedbe projektnog zadatka.
+
+## Podloga projekta
+
+### Zadatak
+
+Zadatak: Programski alati (1) tec-suite i (2) GPS TEC namijenjeni su estimaciji ukupnog ionosferskog sadržaja elektrona (TEC) iz opažanja GNSS pseudoudaljenosti. Provesti analizu uspješnosti procjene vrijednosti TEC-a primjenom oba alata na istu zadanu datoteku s opažanjima GNSS pseudoudaljenosti. Razviti programsku podršku u okruženju R za određivanje reziduala r(t) = TECtec-suite(t) – TECGPS Gopi(t) te provedbu statističke analize reziduala: kvartile, aritmetička srednja vrijednost, varijanca, statistički test normalnosti, procjena funkcije gustoće vjerojatnosti. Izvesti zaključak o uspješnosti rada alata.
+
+### Prethodna postignuća
+
+Cjeline dostupne i poznate timu projekta prije početka provedbe projekta:
+
+- Dostupnost programskog okruženja za statističko računarstvo R
+- Raspoloživost tec-suite i GPS TEC programa za estimaciju TEC opažanja
+- Iskustva te prethodna rješenja postignuta kroz domaće zadaće kolegija
+
+## Cilj projekta
+
+Iako to nije navedeno u tekstu zadatka, glavni cilj projekta je steći nova znanja i iskustva.
+Cilj projekta je bolje upoznavanje studenata sa svim relevantnim materijalima i alatima te steći iskustvo u relevantnim alatima i provedbi projektnog zadatka.
+
+Konkretan cilj projekta je razviti programsku podršku koja će omogućiti:
+
+- Određivanje reziduala kao razliku između TEC vrijednosti dobivenih iz tec-suite i TEC GPS programa
+- Statističku analizu dobivenih reziduala:
+    - kvartili
+    - aritmetička srednja vrijednost
+    - varijanca
+    - statistički test normalnosti
+    - procjena funkcije gustoće vjerojatnosti
+- Usporediti alate tec-suite i TEC GPS te izvesti zaključak o uspješnosti njihovog rada
+
+## Isporuke
+
+Prije završetka projekta, studenti će isporučiti sljedeće:
+
+1. Programsko rješenje u R okruženju (programski kod)
+2. Vrijednosti reziduala
+3. Vrijednosti statističke analize reziduala
+4. Projektna specifikacija
+5. Završni izvještaj projekt s detaljnom analizom
+
+## Očekivani rezultati projekta
+
+
+Očekuje se uspješna procjena TEC-a, te da će reziduali r(t) biti mali. Razlike mogu biti nastati zbog varijacija algoritma, različitim parametrima obrade i numeričke preciznosti. Očekuje se da će srednja vrijednost biti blizu nule, odnosno da neće postojati značajna sustavna pristranost. Varijanca bi mogla biti umjerena zbog šuma pseudo-raspona i ionosferske varijabilnosti na postaji. Statistički test normalnosti bi mogao odbaciti normalnost ako reziduali imaju anomalija, ali histogram bi trebao pokazati otprilike Gaussovu distribuciju centrirani blizu nule.
+
+
+## Vremenski raspored projekta
+
+1. **Priprema (1. tjedan):**
+    - Analiza izmjerenih podataka
+    - Postavljanje razvojnog okruženja
+    - Osmišljavanje plana rada i podjela tima
+    - Priprema projektne specifikacije
+
+2. **Implementacija (2. i 3. tjedan):**
+    - Razvoj programskog rješenja
+    - Korištenje referentnih programa za TEC estimacije
+    - Vođenje grupnih bilješki za završno izvješće
+    - Priprema i isporuka tjednih izvještaja o napretku projekta
+
+3. **Analiza i dokumentacija (4. tjedan):**
+    - Interpretacija rezultata
+    - Priprema završnog izvješća
+    - Izrada prezentacije projekta
+
+## Projektni miljokazi
+
+- 23. svibnja 2025. - analiza izmjerenih podataka i priprema razvojnih okruženja
+- 30. svibnja 2025. - polovična implementacija traženog programskog rješenja
+- 06. lipnja 2025. - potpuna implementacija traženog programskog rješenja
+- 13. lipnja 2025. - napisana i predana sva potrebna dokumentacija te pripremljena prezentacija rješenja
+
+## Nadzor izvršenja projekta
+
+Po završetku projekta, profesor će ocijeniti rad, izvješće i prezentaciju te dati povratne informacije studentima uključujući konstruktivne kritike.
+Četiri člana tima zaduženo je za izvršavanje svoga dijela zadatka ali i međusobni nadzor i potporu pri izradi rješenja projekta.
+Studenti zaduženi za projekt će kontinuirano procjenjivati kvalitete rješenja te po potrebi raditi pravovremene korekcije kvalitete i pristupa rješenju.
+
+
+
+
