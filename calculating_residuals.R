@@ -121,5 +121,13 @@ ggplot(all_residuals, aes(x = r_t)) +
   labs(title = "Global Residuals Density Across All PRNs", x = "Residual (r_t)", y = "Density") +
   theme_minimal()
 
+ggplot(all_residuals, aes(x = datetime, y = r_t, color = factor(PRN))) +
+  geom_point(alpha = 0.6, size = 1) +
+  geom_smooth(se = FALSE, method = "loess", span = 0.2, color = "black") +
+  labs(title = "Residuals Over Time for All PRNs",
+       x = "Datetime", y = "Residual (r_t)",
+       color = "PRN") +
+  theme_minimal()
+
 # save master residuals table 
 write.csv(all_residuals, "all_residuals.csv", row.names = FALSE)
