@@ -42,17 +42,27 @@ RINEX datoteka promatranja ac121600.25o.Z preuzeta je s EarthScope Data Servera 
 
 ## Korištenje TEC GPS programskog alata
 Alat GPS TEC, koji je razvio Gopi Seemala, korišten je za obradu RINEX datoteke promatranja ac121600.25o radi procjene TEC-a. Nakon prilagodbe postavki radi omogućavanja izlaza datoteka, GPS TEC je generirao jednu .Cmn datoteku koja sadrži procjene TEC-a sa stupcima: MJdatet, Time, PRN, Az, Ele, Lat, Lon, Stec, Vtec i S4. Stupac Vtec (vertikalni TEC u TECU) korišten je za usporedbu, izveden iz mjerenja pseudo-udaljenosti (P1/P2) nakon izravnavanja nosioca u kod. Datoteka je uključivala dva retka metapodataka, koji su preskočeni tijekom analize.
-Na slici 1 vidi se grafičko sučelje samog programa, te izlaz koji prikaže nakon uspješne TEC estimacije. Na lijevoj strani je prikazan graf TEC kroz vrijeme od 24h jednog dana, sa korištenim TECU vrijednostima za TEC i sat za vrijeme. Na desnoj strani je graf TEC (y os) kroz vrijeme (x os) s uklonjenim satelitskim i prijemnim pristranostima.
+Na slici 1 vidi se grafičko sučelje samog programa, te izlaz koji prikaže nakon uspješne TEC estimacije. Na lijevoj strani je prikazan graf TEC kroz vrijeme od 24h jednog dana, sa korištenim TECU vrijednostima za TEC i sat za vrijeme. Na desnoj strani je graf TEC (y os) kroz vrijeme (x os) s uklonjenim satelitskim i prijemnim pristranostima. Na slici 2 prikazan je prvotni .Cmn izlaz s neobrađenim podacima.
 
-```{r tecgps-gui, echo=FALSE, fig.width=80, fig.align='center', fig.cap='1.*Prikaz grafičkog sučelja i izlaza programskog alata TEC GPS*'}
+```{r tecgps-gui, echo=FALSE, fig.width=80, fig.align='center', fig.cap='**Slika 1:** *Prikaz grafičkog sučelja i izlaza programskog alata TEC GPS*'}
 
 knitr::include_graphics("./slike/tecgps-gui.png")
 ```
 
 
-## Korištenje tec-suite programskog alata
-Alat tec-suite korišten je za obradu iste RINEX datoteke (ac121600.25o) s GPS navigacijskim datotekama (.25n, .25e, .25g i .25h) za generiranje TEC procjena. Tec-suite nema grafičko sučelje već se sastoji od direktorija u kojem su izvršna datoteka te konfiguracijska datoteka gdje se upisuju nazivi direktorija gdje se nalaze potrebne datoteke za izvršenje programa [[2]](#izvori). Za ispravan rad programa potrebno je zasebno instalirati gunzip i crx2rnx koje dekompresiraju kompaktne RINEX datoteke. Navigacijske datoteke smještene su u zasebne direktorije (nav/n, nav/g/, nav/h/ i nav/e/ za GLONASS i SBAS) kako bi se zadovoljili ulazni zahtjevi tec-suitea. Umjesto jedne CSV datoteke, tec-suite je generirao otprilike 37 .dat datoteka, jednu po vidljivom GPS satelitu (npr. G01, G02, ..., G37). Svaka .dat datoteka imala je zaglavlje od 10 redaka s metapodacima (npr. PRN satelita, koordinate lokacije) i stupcima: tsn, sat, el, az, tec.l1l2, tec.p1p2 i valjanost (eng. *validity*). Stupac tec.p1p2 korišten je kao VTEC za usporedbu s Vtec-om GPS TEC-a. Zaglavlje je označavalo podatke odvojene razmacima i format datuma i vremena (%Y-%m-%dT%H:%M:%S), ali retci podataka koristili su tsn (modificirani julijanski datum) i sat (decimalni sati).
+```{r tecgps-data, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 2:** *Prikaz TEC GPS izlaznih podataka prije obrade*'}
 
+knitr::include_graphics("./slike/tecgps-data.png")
+```
+
+## Korištenje tec-suite programskog alata
+Alat tec-suite korišten je za obradu iste RINEX datoteke (ac121600.25o) s GPS navigacijskim datotekama (.25n, .25e, .25g i .25h) za generiranje TEC procjena. Tec-suite nema grafičko sučelje već se sastoji od direktorija u kojem su izvršna datoteka te konfiguracijska datoteka gdje se upisuju nazivi direktorija gdje se nalaze potrebne datoteke za izvršenje programa [[2]](#izvori). Za ispravan rad programa potrebno je zasebno instalirati gunzip i crx2rnx koje dekompresiraju kompaktne RINEX datoteke. Navigacijske datoteke smještene su u zasebne direktorije (nav/n, nav/g/, nav/h/ i nav/e/ za GLONASS i SBAS) kako bi se zadovoljili ulazni zahtjevi tec-suitea. Umjesto jedne CSV datoteke, tec-suite je generirao otprilike 37 .dat datoteka, jednu po vidljivom GPS satelitu (npr. G01, G02, ..., G37). Svaka .dat datoteka imala je zaglavlje od 10 redaka s metapodacima (npr. PRN satelita, koordinate lokacije) i stupcima: tsn, sat, el, az, tec.l1l2, tec.p1p2 i valjanost (eng. *validity*). Stupac tec.p1p2 korišten je kao VTEC za usporedbu s Vtec-om GPS TEC-a. Zaglavlje je označavalo podatke odvojene razmacima i format datuma i vremena (%Y-%m-%dT%H:%M:%S), ali retci podataka koristili su tsn (modificirani julijanski datum) i sat (decimalni sati). Na slici 3 prikazani su neobrađeni podaci jedne od .dat datoteke koje je tec-suite izgenerirao.
+
+
+```{r tec-suite-data, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 3:** *Prikaz tec-suite izlaznih podataka prije obrade*'}
+
+knitr::include_graphics("./slike/tec-suite-data.png")
+```
 
 # Izvori
 
