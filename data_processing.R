@@ -42,19 +42,36 @@ residuals <- difference_inner_join(
   distance_col = "time_diff"
 )
 
+# compute residuals
+residuals <- residuals %>%
+  mutate(r_t = Vtec_tecsuite - Vtec_TECGPS)
+
+# draw plots
+# Reshape to long format for ggplot
+residuals_long <- residuals %>%
+  select(datetime.x, Vtec_tecsuite, Vtec_TECGPS, r_t) %>%
+  pivot_longer(cols = c(Vtec_tecsuite, Vtec_TECGPS, r_t), 
+               names_to = "Variable", values_to = "Value")
+
+ggplot(residuals_long, aes(x = datetime.x, y = Value, color = Variable)) +
+  geom_line(size = 1) +
+  labs(title = "VTEC and Residuals over Time",
+       x = "Datetime", y = "Value",
+       color = "Variable") +
+  theme_minimal()
 
 # placing all tecsuite files together - needed?
-dat_files <- list.files(path = "./data/tecsuite", pattern = "\\.dat$", full.names = TRUE)
-tec_suite_all <- lapply(dat_files, function(file) {
-  read.table(file, skip = 10, header = FALSE,
-             col.names = c("tsn", "hour", "el", "az", "tec.l1l2", "tec.p1p2", "validity"))
-}) %>% bind_rows()
+#dat_files <- list.files(path = "./data/tecsuite", pattern = "\\.dat$", full.names = TRUE)
+#tec_suite_all <- lapply(dat_files, function(file) {
+#  read.table(file, skip = 10, header = FALSE,
+#             col.names = c("tsn", "hour", "el", "az", "tec.l1l2", "tec.p1p2", "validity"))
+#}) %>% bind_rows()
 
-start_time <- as.POSIXct("2025-06-09 00:00:00", tz = "UTC")
-tec_suite_all$datetime <- start_time + (tec_suite_all$hour * 3600)
+#start_time <- as.POSIXct("2025-06-09 00:00:00", tz = "UTC")
+#tec_suite_all$datetime <- start_time + (tec_suite_all$hour * 3600)
 
 # sort by datetime
-tec_suite_all <- tec_suite_all %>%
-  arrange(datetime)
+#tec_suite_all <- tec_suite_all %>%
+#  arrange(datetime)
 
-head(tec_suite_all)
+#head(tec_suite_all)
