@@ -93,6 +93,11 @@ global_normality <- tryCatch(shapiro.test(all_residuals$r_t), error = function(e
 print(global_normality)
 
 # visualization for Each PRN
+# directory to save plots
+output_dir <- "plots"
+dir.create(output_dir, showWarnings = FALSE)
+
+# generate and save a plot for each PRN
 unique_prns <- unique(all_residuals$PRN)
 
 for (prn in unique_prns) {
@@ -110,8 +115,10 @@ for (prn in unique_prns) {
     labs(title = paste("Boxplot of Residuals, PRN", prn), y = "Residual (r_t)") +
     theme_minimal()
   
-  print(p1)
-  print(p2)
+  filename <- paste0(output_dir, "/histogram_residuals_PRN_", prn, ".png")
+  ggsave(filename, plot = p1, width = 10, height = 6, dpi = 300, bg = "white")
+  filename <- paste0(output_dir, "/boxplot_residuals_PRN_", prn, ".png")
+  ggsave(filename, plot = p2, width = 10, height = 6, dpi = 300,bg = "white")
 }
 
 # global Density Plot
