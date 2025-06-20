@@ -9,7 +9,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Lorena Pekić" />
 
 <meta name="date" content="2025-06-14" />
 
@@ -352,7 +351,6 @@ display: none;
 
 <h1 class="title toc-ignore">Završni izvještaj: Usporedba programskih
 alata za procjenu ionosferskog kašnjenja GNSS signala</h1>
-<h4 class="author">Lorena Pekić</h4>
 <h4 class="date">2025-06-14</h4>
 
 </div>
@@ -389,13 +387,11 @@ prijemnika i satelita, obično mjeren u TEC jedinicama (TECU, <span class="math 
 \text{elektrona/m}^2\)</span>). Cilj ovog projekta je usporediti dva
 alata, GPS TEC i tec-suite, za procjenu TEC-a iz GNSS
 pseudo-udaljenosti, posebno korištenjem GPS podataka iz RINEX datoteke
-promatranja <a href="#izvori">[1]</a><a href="#izvori">[2]</a>.
-Usporedba uključuje obradu istog skupa podataka s oba alata,
-izračunavanje reziduala (<span class="math inline">\(r(t) =
-\text{TEC}{\text{tec-suite}}(t) - \text{TEC}{\text{GPS
-TEC}}(t)\)</span>) i analizu njihovih statističkih svojstava (kvartili,
-srednja vrijednost, varijanca, normalnost) radi procjene točnosti i
-konzistentnosti.</p>
+promatranja <a href="#izvori">[1][2]</a>. Usporedba uključuje obradu
+istog skupa podataka s oba alata, izračunavanje reziduala (<span class="math inline">\(r(t) = \text{TEC}{\text{tec-suite}}(t) -
+\text{TEC}{\text{GPS TEC}}(t)\)</span>) i analizu njihovih statističkih
+svojstava (kvartili, srednja vrijednost, varijanca, normalnost) radi
+procjene točnosti i konzistentnosti.</p>
 <p>Skup podataka, dobiven s EarthScope Data Servera, sastoji se od RINEX
 datoteke promatranja (ac121600.25o.Z) sa stanice AC12 9. lipnja 2025.
 (160. dan) i odgovarajuće GPS navigacijske datoteke (ac121600.25n.Z).
@@ -411,7 +407,7 @@ javljaju pri obradi izlaznih podataka za analizu u R-u.</p>
 <div id="prikupljanje-podataka" class="section level2">
 <h2>Prikupljanje podataka</h2>
 <p>RINEX datoteka promatranja ac121600.25o.Z preuzeta je s EarthScope
-Data Servera (<a href="https://gage-data.earthscope.org/archive/gnss/rinex/obs/2025/160">https://gage-data.earthscope.org/archive/gnss/rinex/obs/2025/160</a>),
+Data Servera (<a href="https://gage-data.earthscope.org/archive/gnss/rinex/obs/2025/160" class="uri">https://gage-data.earthscope.org/archive/gnss/rinex/obs/2025/160</a>),
 koji pruža GNSS podatke za znanstvena istraživanja <a href="#izvori">[3]</a>. Ova komprimirana datoteka, koja se pridržava
 RINEX 3.04 formata, sadrži mjerenja pseudo-udaljenosti i faze nosača s
 GPS satelita za stanicu AC12 9. lipnja 2025. Odgovarajuće GPS
@@ -482,16 +478,190 @@ obrade</em>
 </div>
 </div>
 </div>
+<div id="rezultati" class="section level1">
+<h1>3. Rezultati</h1>
+<div id="analiza-razlike-između-alata-tec-suite-i-gps-tec-gopi" class="section level2">
+<h2>Analiza razlike između alata tec-suite i GPS TEC (Gopi)</h2>
+<p>Cilj analize bio je usporediti učinkovitost dvaju programskih alata
+za procjenu ukupnog elektronskog sadržaja u ionosferi (TEC):
+<em>tec-suite</em> i <em>GPS TEC (Gopi)</em>. Reziduali su definirani
+kao razlika između njihovih procjena u svakom vremenskom trenutku:</p>
+<p><span class="math display">\[
+r(t) = TEC_{\text{tec-suite}}(t) - TEC_{\text{GPS TEC}}(t)
+\]</span></p>
+<p>Gdje TEC označava <em>Total Electron Content</em>, odnosno količinu
+elektrona po kvadratnom metru između GNSS satelita i prijamnika. Veće
+vrijednosti TEC-a ukazuju na gušću ionosferu koja više utječe na
+kašnjenje GNSS signala.</p>
+<p>Pozitivan rezidual znači da tec-suite precjenjuje količinu elektrona
+u odnosu na alat GPS TEC (Gopi), tj. smatra ionosferu gušćom, što može
+dovesti do pretjeranih korekcija GNSS signala. Nasuprot tome, negativan
+rezidual ukazuje na podcjenjivanje TEC-a od strane tec-suite, što može
+rezultirati nedovoljnom korekcijom ionosferskog utjecaja.</p>
+<p>Analiza je provedena na podacima istih PRN satelita u istim
+vremenskim trenucima, koji su preuzeti s EarthScope Data Servera i i
+obrađeni pomoću modela tec-suite i GPS TEC (Gopi). Time svaki izračunati
+rezidual precizno prikazuje trenutnu razliku između dvaju modela za isti
+satelit, u istom trenutku i pod istim uvjetima.</p>
+</div>
+<div id="vremenska-dinamika-reziduala" class="section level2">
+<h2>Vremenska dinamika reziduala</h2>
+<p>Analiza vremenskog prikaza reziduala za sve PRN satelite pruža
+pregled cjelokupnog ponašanja razlika između alata tec-suite i GPS TEC
+(Gopi) kroz promatrano razdoblje. Većina reziduala zadržava se u
+negativnom području, što ukazuje na tendenciju alata tec-suite da
+podcjenjuje vrijednosti TEC-a u odnosu na referentni alat.</p>
+<p>Na grafu su prikazane pojedinačne točke reziduala kroz vrijeme, dok
+crna glatka linija vizualizira prosječnu dinamiku odstupanja. Iako ta
+linija varira tijekom vremena, jasno se vidi da se zadržava ispod nulte
+vrijednosti, što sugerira prevladavajući negativni pomak u
+procjenama.</p>
+<p>Ovaj vremenski pregled ukazuje da performanse alata nisu potpuno
+konzistentne kroz cijelo razdoblje, nego pokazuju određene fluktuacije
+koje su važne za detaljniju interpretaciju i usporedbu modela. Takva
+vremenska varijabilnost stoga predstavlja ključni kontekst za kasniju
+statističku analizu po pojedinim PRN satelitima.</p>
+</div>
+<div id="gustoća-globalnih-reziduala" class="section level2">
+<h2>Gustoća globalnih reziduala</h2>
+<p>Analiza ukupne distribucije reziduala između alata tec-suite i GPS
+TEC (Gopi) za sve PRN satelite prikazana je histogramom s procijenjenom
+funkcijom gustoće vjerojatnosti. Na ovom prikazu jasno je vidljivo da su
+gotovo svi reziduali smješteni u negativnom području, što potvrđuje da
+tec-suite u velikoj većini slučajeva procjenjuje manji ukupni
+elektronski sadržaj (TEC) u odnosu na referentni alat GPS TEC
+(Gopi).</p>
+<p>Najveća gustoća reziduala koncentrirana je u rasponu od otprilike
+-140 do -50, gdje se pojavljuju dva izražena lokalna maksimuma. Međutim,
+gledajući cijeli raspon distribucije, vidljivo je više manjih
+vrhova.</p>
+<p>Najveća učestalost reziduala zabilježena je u rasponu od -140 do -50,
+gdje se nalaze dva dominantna vrha. No, gledajući širu raspodjelu,
+vidljivo je više manjih lokalnih maksimuma, što znači da razlike među
+alatima nisu raspoređene jednoliko. Takav obrazac s više izraženih
+područja povećane učestalosti, upućuje na to da razlike između alata
+nisu ujednačene, već da postoje tipične razine odstupanja koje se češće
+ponavljaju. Te razine mogu biti povezane s određenim PRN satelitima,
+vremenskim razdobljima ili promjenjivim ionosferskim uvjetima.</p>
+<p>Distribucija nije simetrična ni zvonolikog oblika, već složenija i
+razgranatija, s više izraženih gustoća. Ovakva raspodjela pruža dublji
+uvid u ponašanje alata i upućuje na to da odstupanja između modela nisu
+slučajna, već reflektiraju specifične obrasce i strukturne razlike u
+procjenama TEC-a.</p>
+</div>
+<div id="globalna-deskriptivna-statistika" class="section level2">
+<h2>Globalna deskriptivna statistika</h2>
+<p>Globalni statistički pokazatelji dodatno potvrđuju sustavnu
+pristranost modela tec-suite u odnosu na alat GPS TEC (Gopi):</p>
+<ul>
+<li><strong>Aritmetička sredina (prosjek)</strong>: −97.4<br />
+</li>
+<li><strong>Medijan</strong>: −96.9<br />
+</li>
+<li><strong>Minimum / Maksimum</strong>: −217 / 60.2<br />
+</li>
+<li><strong>Interkvartilni raspon (IQR)</strong>: 62.1<br />
+</li>
+<li><strong>Varijanca</strong>: 1790</li>
+</ul>
+<p>Ovi pokazatelji jasno potvrđuju da su razlike između alata
+strukturirane i konzistentno nagnute prema negativnim vrijednostima.
+Sredina i medijan gotovo identične, zajedno s izraženim minimumom,
+ukazuju na sustavnu pristranost alata tec-suite. Iako varijanca i IQR
+upućuju na određenu razinu varijabilnosti, dominacija negativnih
+vrijednosti ostaje najizraženija statistička karakteristika.</p>
+</div>
+<div id="statistička-analiza-reziduala-po-prn-satelitima" class="section level2">
+<h2>Statistička analiza reziduala po PRN satelitima</h2>
+<p>Analiza PRN satelita na temelju statističkih pokazatelja
+(interkvartilnog raspona (IQR), varijance, položaja medijana i
+prisutnosti outliera) omogućila je kategorizaciju njihove pouzdanosti u
+kontekstu usporedbe dvaju alata za procjenu totalnog elektronskog
+sadržaja (TEC).</p>
+<p>Rezultati ukazuju na veliku raznolikost u ponašanju pojedinih PRN
+satelita, pri čemu se jasno izdvajaju tri osnovne skupine: pouzdani,
+umjereno pouzdani i nestabilni sateliti.</p>
+<div id="visoko-pouzdani-prn-ovi" class="section level3">
+<h3>Visoko pouzdani PRN-ovi</h3>
+<p>PRN 4, PRN 13, PRN 18, PRN 20 i PRN 22 pokazali su najveći stupanj
+stabilnosti i konzistentnosti. Njihove statističke karakteristike – vrlo
+uski IQR-ovi, niske varijance te simetrična raspodjela reziduala –
+ukazuju na izrazito kompaktne i uravnotežene podatke. Iako PRN 13 i PRN
+18 imaju prisutne outliere u pozitivnom smjeru, oni nisu dovoljno
+ekstremni da ozbiljno naruše ukupnu stabilnost podataka. PRN 22, iako
+ima najveći broj outliera među ovom skupinom, ti su outlieri unutar
+prihvatljivih granica i ne narušavaju osnovnu stabilnost. S druge
+strane, PRN 4 i PRN 20 gotovo nemaju outliere. U kontekstu usporedbe
+dvaju alata, ovi PRN-ovi predstavljaju pouzdanu referencu jer, unatoč
+povremenim odstupanjima, ukupno nude visoku preciznost i dosljednost u
+procjenama TEC-a.</p>
+</div>
+<div id="umjereno-pouzdani-prn-ovi" class="section level3">
+<h3>Umjereno pouzdani PRN-ovi</h3>
+<p>U ovu kategoriju svrstavaju se PRN 1, 5, 6, 7, 9, 12, 15, 16, 17, 19
+i 25. Ovi sateliti pokazali su umjerene razine varijabilnosti, uz
+relativno prihvatljive IQR-ove i srednje vrijednosti varijance. U većini
+slučajeva prisutni su izolirani outlieri – najčešće u pozitivnom smjeru,
+no bez ozbiljnih posljedica po cjelokupnu raspodjelu. Jezgre
+distribucija ostaju relativno stabilne, pa se ovi PRN-ovi mogu smatrati
+korektnom osnovom za usporedbu alata, pod uvjetom dodatnog opreza u
+tumačenju rezultata.</p>
+</div>
+<div id="nestabilni-i-nepouzdani-prn-ovi" class="section level3">
+<h3>Nestabilni i nepouzdani PRN-ovi</h3>
+<p>PRN 2, 3, 8, 10, 11, 23 i 24 pokazali su široke interkvartilne
+raspone i visoke varijance, često uz dodatak izraženih outliera i
+asimetričnih distribucija. PRN 10 i PRN 23 posebno su problematični – s
+varijancama od preko 4000 i IQR-ovima većim od 100 jedinica, njihove
+procjene TEC-a između alata značajno odstupaju. Ovi PRN-ovi ne mogu se
+smatrati pouzdanima za finu procjenu razlika između alata i trebali bi
+biti isključeni iz statistički osjetljivih interpretacija.</p>
+</div>
+</div>
+<div id="test-normalnosti" class="section level2">
+<h2>Test normalnosti</h2>
+<p>Shapiro-Wilk test primijenjen na globalni skup reziduala pokazao je
+vrlo niske p-vrijednosti (sve &lt; 0.05), što jasno upućuje na to da
+distribucija reziduala značajno odstupa od normalne. Takav rezultat
+potvrđuje nepravilnu i nelinearnu strukturu podataka te opravdava
+primjenu statističkih metoda koje ne ovise o pretpostavci normalnosti.
+Ova spoznaja dodatno učvršćuje zaključke o neslučajnoj prirodi razlika
+između alata i potrebi za robusnijim analitičkim pristupima.</p>
+</div>
+</div>
+<div id="zaključak" class="section level1">
+<h1>4. Zaključak</h1>
+<p>Analiza provedena nad ukupnim skupom reziduala, zajedno s vremenskim
+pregledom i pojedinačnom analizom po satelitima, jasno pokazuje da alat
+tec-suite dosljedno daje niže vrijednosti TEC-a u odnosu na referentni
+alat GPS TEC (Gopi). Takva razlika nije rezultat nasumičnih oscilacija,
+već proizlazi iz strukturnih karakteristika modela i njihove različite
+osjetljivosti na podatke i uvjete.</p>
+<p>Reziduali su u velikoj većini negativni, s izraženim obrascima i
+ponavljajućim odstupanjima, što je potvrđeno histogramima gustoće,
+deskriptivnom statistikom i testom normalnosti. Distribucija odstupanja
+pokazala se nelinearna i nesimetrična, čime se dodatno ističe složenost
+razlika između alata. Statistička analiza po PRN satelitima pokazala je
+značajne razlike u stabilnosti i preciznosti među satelitima, pri čemu
+su neki PRN-ovi iskazali visoku pouzdanost, a drugi visoku varijabilnost
+i prisutnost ekstremnih odstupanja.</p>
+<p>U cjelini, GPS TEC (Gopi) se ističe kao pouzdaniji i stabilniji alat
+za procjenu ukupnog elektronskog sadržaja, s izlaznim vrijednostima koje
+se bolje uklapaju u očekivane obrasce i daju manje oscilacija. Za
+potrebe budućih analiza, osobito onih koje zahtijevaju visoku preciznost
+u modeliranju ionosferskih utjecaja na GNSS signale, preporuča se
+primjena Gopi alata kao primarnog izvora TEC procjena.</p>
+</div>
 <div id="izvori" class="section level1">
 <h1>Izvori</h1>
 <ol style="list-style-type: decimal">
-<li>GPS TEC Program, Seemala Gopi, mrežna stranica: <a href="https://seemala.blogspot.com/">https://seemala.blogspot.com/</a>
-(pristup: 23.05.2025.)</li>
-<li>tec-suite Documentation, tec-suite Developers, mrežna stranica: <a href="https://tec-suite.readthedocs.io/en/latest/">https://tec-suite.readthedocs.io/en/latest/</a>
-(pristup: 23.05.2025.)</li>
+<li>GPS TEC Program, Seemala Gopi, mrežna stranica: <a href="https://seemala.blogspot.com/" class="uri">https://seemala.blogspot.com/</a> (pristup:
+23.05.2025.)</li>
+<li>tec-suite Documentation, tec-suite Developers, mrežna stranica: <a href="https://tec-suite.readthedocs.io/en/latest/" class="uri">https://tec-suite.readthedocs.io/en/latest/</a> (pristup:
+23.05.2025.)</li>
 <li>EarthScope GNSS Data Server, EarthScope Consortium, mrežna stranica:
-<a href="https://gage-data.earthscope.org/">https://gage-data.earthscope.org/</a>
-(pristup: 23.05.2025.)</li>
+<a href="https://gage-data.earthscope.org/" class="uri">https://gage-data.earthscope.org/</a> (pristup:
+23.05.2025.)</li>
 </ol>
 </div>
 
