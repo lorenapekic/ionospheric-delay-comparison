@@ -58,7 +58,7 @@ knitr::include_graphics("./slike/tecgps-data.png")
 
 Alat tec-suite korišten je za obradu iste RINEX datoteke (ac121600.25o) s GPS navigacijskim datotekama (.25n, .25e, .25g i .25h) za generiranje TEC procjena. Tec-suite nema grafičko sučelje već se sastoji od direktorija u kojem su izvršna datoteka te konfiguracijska datoteka gdje se upisuju nazivi direktorija gdje se nalaze potrebne datoteke za izvršenje programa [[2]](#izvori). Za ispravan rad programa potrebno je zasebno instalirati gunzip i crx2rnx koje dekompresiraju kompaktne RINEX datoteke. Navigacijske datoteke smještene su u zasebne direktorije (nav/n, nav/g/, nav/h/ i nav/e/ za GLONASS i SBAS) kako bi se zadovoljili ulazni zahtjevi tec-suitea. Umjesto jedne CSV datoteke, tec-suite je generirao otprilike 37 .dat datoteka, jednu po vidljivom GPS satelitu (npr. G01, G02, ..., G37). Svaka .dat datoteka imala je zaglavlje od 10 redaka s metapodacima (npr. PRN satelita, koordinate lokacije) i stupcima: tsn, sat, el, az, tec.l1l2, tec.p1p2 i valjanost (eng. *validity*). Stupac tec.p1p2 korišten je kao VTEC za usporedbu s Vtec-om GPS TEC-a. Zaglavlje je označavalo podatke odvojene razmacima i format datuma i vremena (%Y-%m-%dT%H:%M:%S), ali retci podataka koristili su tsn (modificirani julijanski datum) i sat (decimalni sati). Na slici 3 prikazani su neobrađeni podaci jedne od .dat datoteke koje je tec-suite izgenerirao.
 
-```{r tesuite_izlaznih_podataka_prije_obrade, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 3:** *Prikaz tec-suite izlaznih podataka prije obrade*'}
+```{r tesuite_izlaznih_podataka_prije_obrade, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 4:** *Prikaz tec-suite izlaznih podataka prije obrade*'}
 
 
 knitr::include_graphics("./slike/tec-suite-data.png")
@@ -88,6 +88,14 @@ Na grafu su prikazane pojedinačne točke reziduala kroz vrijeme, dok crna glatk
 
 Ovaj vremenski pregled ukazuje da performanse alata nisu potpuno konzistentne kroz cijelo razdoblje, nego pokazuju određene fluktuacije koje su važne za detaljniju interpretaciju i usporedbu modela. Takva vremenska varijabilnost stoga predstavlja ključni kontekst za kasniju statističku analizu po pojedinim PRN satelitima.
 
+
+```{r vremenska_razlika_reziduala, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 4:** *Prikaz individualnih reziduala svih PRN-ova kroz vrijeme*'}
+
+
+knitr::include_graphics("./slike/all_residuals_over_time_plot.png")
+```
+
+
 ## Gustoća globalnih reziduala
 
 Analiza ukupne distribucije reziduala između alata tec-suite i GPS TEC (Gopi) za sve PRN satelite prikazana je histogramom s procijenjenom funkcijom gustoće vjerojatnosti. Na ovom prikazu jasno je vidljivo da su gotovo svi reziduali smješteni u negativnom području, što potvrđuje da tec-suite u velikoj većini slučajeva procjenjuje manji ukupni elektronski sadržaj (TEC) u odnosu na referentni alat GPS TEC (Gopi).
@@ -97,6 +105,12 @@ Najveća gustoća reziduala koncentrirana je u rasponu od otprilike -140 do -50,
 Najveća učestalost reziduala zabilježena je u rasponu od -140 do -50, gdje se nalaze dva dominantna vrha. No, gledajući širu raspodjelu, vidljivo je više manjih lokalnih maksimuma, što znači da razlike među alatima nisu raspoređene jednoliko. Takav obrazac s više izraženih područja povećane učestalosti, upućuje na to da razlike između alata nisu ujednačene, već da postoje tipične razine odstupanja koje se češće ponavljaju. Te razine mogu biti povezane s određenim PRN satelitima, vremenskim razdobljima ili promjenjivim ionosferskim uvjetima.
 
 Distribucija nije simetrična ni zvonolikog oblika, već složenija i razgranatija, s više izraženih gustoća. Ovakva raspodjela pruža dublji uvid u ponašanje alata i upućuje na to da odstupanja između modela nisu slučajna, već reflektiraju specifične obrasce i strukturne razlike u procjenama TEC-a.
+
+```{r globalna_statistika, echo=FALSE, out.width = "70%", fig.align='center', fig.cap='**Slika 5:** *Prikaz globalne rezidualne gustoce svih PRN-ova*'}
+
+
+knitr::include_graphics("./slike/density_all_residuals_plot.png")
+```
 
 ## Globalna deskriptivna statistika
 
