@@ -130,7 +130,7 @@ PRN 2, 3, 8, 10, 11, 23 i 24 pokazali su široke interkvartilne raspone i visoke
 
 ## Test normalnosti
 
-Shapiro-Wilk test primijenjen na globalni skup reziduala pokazao je vrlo niske p-vrijednosti (sve \< 0.05), što jasno upućuje na to da distribucija reziduala značajno odstupa od normalne. Takav rezultat potvrđuje nepravilnu i nelinearnu strukturu podataka te opravdava primjenu statističkih metoda koje ne ovise o pretpostavci normalnosti. Ova spoznaja dodatno učvršćuje zaključke o neslučajnoj prirodi razlika između alata i potrebi za robusnijim analitičkim pristupima.
+Anderson-Darling test primijenjen na globalni skup reziduala pokazao je vrlo niske p-vrijednosti (sve \< 0.05), što jasno upućuje na to da distribucija reziduala značajno odstupa od normalne. Takav rezultat potvrđuje nepravilnu i nelinearnu strukturu podataka te opravdava primjenu statističkih metoda koje ne ovise o pretpostavci normalnosti. Ova spoznaja dodatno učvršćuje zaključke o neslučajnoj prirodi razlika između alata i potrebi za robusnijim analitičkim pristupima.
 
 # 4. Zaključak
 
