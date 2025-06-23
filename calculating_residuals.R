@@ -1,5 +1,7 @@
+# Clear the environment
 rm(list=ls())
 
+# Load necessary libraries
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -8,51 +10,116 @@ library(lubridate)
 library(fuzzyjoin)
 library(purrr)
 library(stringr)
+library(readr) # Added readr for read_csv
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+RUN_BIAS_CORRECTION <- TRUE
 
-# Read GPS TEC data
-gps_tec <- read.table("data/gps-tec-output.Cmn", skip = 2, header = TRUE)
-gps_tec$datetime <- as.POSIXct((gps_tec$MJdatet) * 86400, origin = "1858-11-17", tz = "UTC")
+title_add <- "(Flat bias + fitted per satellite)"
 
-# Directory for TEC suite files
-dat_files <- list.files(path = "./data/tecsuite", pattern = "\\.dat$", full.names = TRUE)
-start_time <- as.POSIXct("2025-06-09 00:00:00", tz = "UTC")
+analysis_suffix <- "_only_valid_flat_bias"
+#analysis_suffix <- "_included_invalid_flat_bias"
+#analysis_suffix <- "_only_valid_dyn_bias"
+#analysis_suffix <- "_included_invalid_dyn_bias"
 
-# Initialize master residuals table
-all_residuals <- tibble(PRN = numeric(), datetime = as.POSIXct(character()), 
-                        Vtec_tecsuite = numeric(), Vtec_TECGPS = numeric(), r_t = numeric())
 
-# Loop through PRNs 1 to 25
-for (prn in 1:25) {
-  prn_padded <- str_pad(prn, 2, pad = "0")
-  file_pattern <- paste0("ac12_G", prn_padded, "_160_25.dat")
-  dat_file <- dat_files[basename(dat_files) == file_pattern]
-  
-  if (length(dat_file) == 0) next
-  
-  gps_tec_prn <- gps_tec %>%
-    filter(PRN == prn) %>%
-    rename(Vtec_TECGPS = Vtec)
-  
-  tec_suite <- read.table(dat_file, skip = 10, header = FALSE,
-                          col.names = c("tsn", "hour", "el", "az", "tec.l1l2", "tec.p1p2", "validity")) %>%
-    mutate(datetime = start_time + (hour * 3600),
-           Vtec_tecsuite = tec.l1l2)
-  
-  residuals <- difference_inner_join(
-    gps_tec_prn, tec_suite,
-    by = c("datetime" = "datetime"),
-    max_dist = 2, distance_col = "time_diff"
-  ) %>%
-    mutate(PRN = prn, r_t = Vtec_tecsuite - Vtec_TECGPS) %>%
-    select(PRN, datetime = datetime.x, Vtec_tecsuite, Vtec_TECGPS, r_t)
-  
-  all_residuals <- bind_rows(all_residuals, residuals)
+load_gps_tec_data <- function(gps_file_path) {
+  gps_tec_raw <- read.table(gps_file_path, skip = 2, header = TRUE)
+  gps_tec <- gps_tec_raw %>%
+    mutate(datetime = as.POSIXct((MJdatet) * 86400, origin = "1858-11-17", tz = "UTC")) %>%
+    rename(Vtec_TECGPS = Vtec) %>%
+    select(PRN, datetime, Vtec_TECGPS)
+  return(gps_tec)
 }
 
-# descriptive Statistics per PRN
+load_tec_suite_data <- function(tec_suite_file_path, analysis_suffix, base_date) {
+  full_path <- paste0(tec_suite_file_path, "tec_suite_vtec_data", analysis_suffix, ".csv")
+  tec_suite_raw <- read_csv(full_path)
+  tec_suite_processed <- tec_suite_raw %>%
+    mutate(
+      datetime = as.POSIXct(base_date, tz = "UTC") + dhours(hour),
+      PRN = as.numeric(str_remove(satellite, "G")),
+      Vtec_tecsuite = vtec
+    ) %>%
+    select(PRN, datetime, Vtec_tecsuite)
+  
+  return(tec_suite_processed)
+}
+
+
+
+gps_data_path <- "data/gps-tec-output.Cmn"
+tec_suite_path_prefix <- "data/tec_suite/"
+
+gps_tec_data <- load_gps_tec_data(gps_file_path = gps_data_path)
+tec_suite_data <- load_tec_suite_data(
+    tec_suite_file_path = tec_suite_path_prefix,
+    analysis_suffix = analysis_suffix,
+    base_date = as.Date(gps_tec_data$datetime[1])
+  )
+
+common_prns <- intersect(unique(gps_tec_data$PRN), unique(tec_suite_data$PRN))
+
+
+
+
+
+common_prns <- intersect(unique(gps_tec_data$PRN), unique(tec_suite_data$PRN))
+
+all_residuals <- map_dfr(common_prns, function(current_prn) {
+  
+  gps_subset <- gps_tec_data %>% filter(PRN == current_prn)
+  tec_suite_subset <- tec_suite_data %>% filter(PRN == current_prn)
+  
+  joined_data <- difference_inner_join(
+    gps_subset,
+    tec_suite_subset,
+    by = "datetime",
+    max_dist = 2, # 2-second tolerance
+    distance_col = "time_diff"
+  ) %>%
+    # Select and rename columns early
+    select(
+      PRN = PRN.x,
+      datetime = datetime.x, 
+      Vtec_tecsuite, 
+      Vtec_TECGPS
+    )
+
+  # <<<< START OF INSERTED LOGIC >>>>
+  if (RUN_BIAS_CORRECTION && nrow(joined_data) > 0) {
+    
+    time_gap_threshold_minutes <- 30
+    
+    joined_data <- joined_data %>%
+      # We only need to arrange by datetime now
+      arrange(datetime) %>%
+      mutate(
+        time_diff_internal = difftime(datetime, lag(datetime), units = "mins"),
+        segment_id = cumsum(is.na(lag(datetime)) | time_diff_internal > time_gap_threshold_minutes)
+      ) %>%
+      # We no longer group by PRN, only by the new segment_id
+      group_by(segment_id) %>%
+      mutate(
+        bias = mean(Vtec_TECGPS, na.rm = TRUE) - mean(Vtec_tecsuite, na.rm = TRUE),
+        Vtec_tecsuite = Vtec_tecsuite + bias
+      ) %>%
+      ungroup() %>%
+      select(-bias, -time_diff_internal, -segment_id)
+  }
+  # <<<< END OF INSERTED LOGIC >>>>
+  
+  # Calculate the final residual and return
+  joined_data %>%
+    mutate(
+      r_t = Vtec_tecsuite - Vtec_TECGPS
+    )
+})
+
+
+
+
 stats_per_prn <- all_residuals %>%
   group_by(PRN) %>%
   summarise(n = n(),
@@ -65,17 +132,23 @@ stats_per_prn <- all_residuals %>%
             variance = var(r_t, na.rm = TRUE),
             .groups = 'drop')
 
+print("--- Descriptive Statistics per PRN ---")
 print(stats_per_prn)
 
-# normality test (Shapiro-Wilk) per PRN
+# Normality test (Shapiro-Wilk) per PRN
 normality_tests <- all_residuals %>%
   group_by(PRN) %>%
-  summarise(p_value = tryCatch(shapiro.test(r_t)$p.value, error = function(e) NA),
-            .groups = 'drop')
+  # Use a sample if N > 5000, as shapiro.test has a limit
+  summarise(p_value = {
+    data_sample <- if(n() > 4999) sample(r_t, 4999) else r_t
+    tryCatch(shapiro.test(data_sample)$p.value, error = function(e) NA)
+  },
+  .groups = 'drop')
 
+print("--- Shapiro-Wilk Normality Test P-Values per PRN ---")
 print(normality_tests)
 
-# global Statistics (all PRNs combined)
+# Global Statistics (all PRNs combined)
 global_stats <- all_residuals %>%
   summarise(n = n(),
             min = min(r_t, na.rm = TRUE),
@@ -86,55 +159,52 @@ global_stats <- all_residuals %>%
             mean = mean(r_t, na.rm = TRUE),
             variance = var(r_t, na.rm = TRUE))
 
+print("--- Global Statistics Across All PRNs ---")
 print(global_stats)
 
-# global Normality Test
-global_normality <- tryCatch(shapiro.test(all_residuals$r_t), error = function(e) NA)
-print(global_normality)
+# Global Normality Test (Anderson-Darling is better for large samples)
+print("--- Global Anderson-Darling Normality Test ---")
+global_normality_ad <- nortest::ad.test(all_residuals$r_t)
+print(global_normality_ad)
 
-# visualization for Each PRN
-# directory to save plots
-output_dir <- "plots"
-dir.create(output_dir, showWarnings = FALSE)
+# Visualization for Each PRN
+# Directory to save plots
+output_dir <- paste0("plots_residuals/", analysis_suffix)
+dir.create(output_dir, recursive=TRUE)
 
-# generate and save a plot for each PRN
+# Generate and save a plot for each PRN
 unique_prns <- unique(all_residuals$PRN)
 
-for (prn in unique_prns) {
-  res_subset <- all_residuals %>% filter(PRN == prn)
-  
-  p1 <- ggplot(res_subset, aes(x = r_t)) +
-    geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", alpha = 0.6) +
-    geom_density(color = "red", size = 1) +
-    labs(title = paste("Histogram + Density for Residuals, PRN", prn),
-         x = "Residual (r_t)", y = "Density") +
-    theme_minimal()
-  
-  p2 <- ggplot(res_subset, aes(y = r_t)) +
-    geom_boxplot(fill = "lightgreen", alpha = 0.6) +
-    labs(title = paste("Boxplot of Residuals, PRN", prn), y = "Residual (r_t)") +
-    theme_minimal()
-  
-  filename <- paste0(output_dir, "/histogram_residuals_PRN_", prn, ".png")
-  ggsave(filename, plot = p1, width = 10, height = 6, dpi = 300, bg = "white")
-  filename <- paste0(output_dir, "/boxplot_residuals_PRN_", prn, ".png")
-  ggsave(filename, plot = p2, width = 10, height = 6, dpi = 300,bg = "white")
-}
 
-# global Density Plot
-ggplot(all_residuals, aes(x = r_t)) +
+# Global Density Plot
+global_hist_plot <- ggplot(all_residuals, aes(x = r_t)) +
   geom_histogram(aes(y = ..density..), bins = 50, fill = "skyblue", alpha = 0.5) +
   geom_density(color = "darkred", size = 1) +
-  labs(title = "Global Residuals Density Across All PRNs", x = "Residual (r_t)", y = "Density") +
+  labs(title = paste("Global Residuals Density Across All PRNs", title_add), x = "Residual (r_t)", y = "Density") +
   theme_minimal()
 
-ggplot(all_residuals, aes(x = datetime, y = r_t, color = factor(PRN))) +
-  geom_point(alpha = 0.6, size = 1) +
-  geom_smooth(se = FALSE, method = "loess", span = 0.2, color = "black") +
-  labs(title = "Residuals Over Time for All PRNs",
+ggsave(file.path(output_dir, "histogram_residuals_GLOBAL.png"), plot = global_hist_plot, width = 10, height = 6, dpi = 300, bg = "white")
+
+
+# Global Time Series Plot
+global_ts_plot <- ggplot(all_residuals, aes(x = datetime, y = r_t, color = factor(PRN))) +
+  geom_point(alpha = 0.4, size = 1) +
+  stat_summary(
+    fun = "mean",          # The function to apply (calculate the mean)
+    geom = "line",         # The geometric object to draw (a line)
+    color = "black",       # The color of the line
+    linewidth = 0.8,       # The thickness of the line (use `size` for older ggplot2 versions)
+    aes(group = 1)         # Important: Ensure it draws one single line across all PRNs
+  ) +
+  labs(title = paste("Residuals Over Time for All PRNs", title_add),
        x = "Datetime", y = "Residual (r_t)",
        color = "PRN") +
   theme_minimal()
 
-# save master residuals table 
+ggsave(file.path(output_dir, "timeseries_residuals_GLOBAL.png"), plot = global_ts_plot, width = 12, height = 7, dpi = 300, bg = "white")
+
+
+# Save master residuals table 
 write.csv(all_residuals, "all_residuals.csv", row.names = FALSE)
+
+print(paste("--- Script finished successfully! All plots saved in '", output_dir, "' directory. ---"))
